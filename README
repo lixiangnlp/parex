@@ -1,0 +1,124 @@
+
+Parex Paraphrase Extractor
+--------------------------
+
+
+1. About:
+---------
+
+Parex is a simple tool for extracting paraphrases from bilingual phrase tables
+using the Bannard and Callison-Burch [ACL-2005] method.  In addition, language-
+independent paraphrase merging and filtering can be applied using information
+from the parallel corpora from which phrase tables are built.
+
+Parex assumes a server with at least 12GB of memory several GB of disk space.
+
+
+2. Requirements for paraphrase extraction:
+------------------------------------------
+
+pt.gz - a gzipped Moses format bilingual phrase table
+
+fCorpus - the foreign corpus used to build pt.gz, pre-processed exactly as given
+          to word alignment/phrase extraction
+
+nCorpus - the native corpus used to build pt.gz
+
+fTgtCorpus - a small foreign target corpus (10,000 sentences recommended) to be
+             paraphrased.  Paraphrases will be extracted for all possible
+             phrases in this corpus.  This can be `head -n 10000` of fCorpus,
+             although material in the same domain as test data for your NLP
+             task(s) can be more useful.
+
+nTgtCorpus - a small native target corpus
+
+
+3. Extracting paraphrases:
+--------------------------
+
+Given the above files, extract paraphrases:
+
+$ java -XX:+UseCompressedOops -Xmx12G -jar parex-*.jar <fCorpus> <nCorpus> \
+  <pt.gz> <fTgtCorpus> <nTgtCorpus> <outPrefix> [minTP] [minRF] [symbols]
+
+outPrefix - prefix for output files
+
+The last three parameters are optional:
+
+minTP - minimum translation probability for phrase pairs.  Any phrase pairs with
+        lower probability will not be considered during paraphrase extraction.
+        (default 0.001)
+
+minRF - minimum relative frequency in corpus to be considered a common word.
+        Any phrases with one or both sides consisting of only common words will
+        not be considered during paraphrase extraction.
+        (default 0.001)
+
+symbols - string of punctuation symbols.  Phrase pairs containing punctuation
+          symbols will not be considered during paraphrase extraction.
+          (default "~`!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?")
+
+The following files are produced:
+
+<pre>.n.common - native common word list
+
+<pre>.n.raw.gz - native, unsorted paraphrase instances
+
+<pre>.n.grp.gz - native, sorted paraphrase instances
+
+<pre>.n.par.gz - merged paraphrase table.  This is the final paraphrase table
+                 if only one phrase table is being used
+
+Foreign files <pre>.f.* are foreign equivalents of above.
+
+Paraphrase tables contain lines in the following format:
+
+phrase1 ||| phrase2 ||| prob
+
+This indicates that phrase1 (reference phrase) can be paraphrased by phrase2
+(paraphrase) with probability prob.  Thus prob is the probability of the
+paraphrase given the reference.  For example:
+
+day before ||| yesterday ||| 0.0175624491042
+
+This indicates that "day before" can be paraphrased as "yesterday" with
+P(yesterday|day before) = 0.0175624491042.
+
+
+4. Merging paraphrase tables:
+-----------------------------
+
+To merge paraphrase tables built from multiple phrase tables:
+
+$ java -XX:+UseCompressedOops -Xmx12G -cp parex-*.jar MergeParaphraseTables \
+  <outPrefix> <par1.gz> <wc1> <par2.gz> <wc2> [par3.gz wc3 ...]
+
+par1.gz - paraphrase table build as in previous section
+
+wc1 - number of sentence pairs in copora used to create phrase table used to
+      produce par1.gz
+
+par2.gz, wc2, ... - other tables to be merged, same as above 
+
+Output:
+
+<pre>.mrg.par.gz - merged paraphrase table.  Paraphrase probabilities are
+                   weighted means over phrase tables/corpora in which they
+                   appear.  Format is same as original paraphrase table.
+
+
+5. Filtering paraphrase tables:
+-------------------------------
+
+To filter extracted or merged paraphrase tables:
+
+$ java -cp parex-*.jar Vacuum <minProb> <phrasetable.gz> <new-phrasetable.gz>
+
+minProb - minimum paraphrase probability.  Discard anything with lower
+          probability.
+          (0.01 recommended)
+
+phrasetable.gz - input paraphrase table
+
+new-phrasetable.gz - output (filtered) paraphrase table
+

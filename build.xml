@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<project name="Paraphrase Extractor" default="dist" basedir=".">
+
+	<property name="version" value="1.0" />
+
+	<property name="parex-jar" value="parex-${version}.jar" />
+
+
+	<target name="init">
+		<mkdir dir="build" />
+	</target>
+
+	<target name="compile" depends="init">
+		<javac source="1.5" target="1.5" srcdir="src" destdir="build" />
+	</target>
+
+	<target name="dist" depends="compile">
+		<jar jarfile="${parex-jar}" basedir="build">
+			<manifest>
+				<attribute name="Main-Class" value="Main" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up generted files">
+		<delete dir="build" />
+		<delete file="${parex-jar}" />
+	</target>
+
+</project>
