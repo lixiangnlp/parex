@@ -115,7 +115,7 @@ public class ParaphraseExtractor {
 			// Native phrase 1
 			String n1 = part[1].trim();
 			// Probabilities
-			StringTokenizer pTok = new StringTokenizer(part[4]);
+			StringTokenizer pTok = new StringTokenizer(part[2]);
 			double pf1Gn1 = Double.parseDouble(pTok.nextToken());
 			pTok.nextToken();
 			double pn1Gf1 = Double.parseDouble(pTok.nextToken());
@@ -200,7 +200,7 @@ public class ParaphraseExtractor {
 			// Native2
 			String n2 = part[1].trim();
 			// Probabilities
-			StringTokenizer pTok = new StringTokenizer(part[4]);
+			StringTokenizer pTok = new StringTokenizer(part[2]);
 			double pf2Gn2 = Double.parseDouble(pTok.nextToken());
 			pTok.nextToken();
 			double pn2Gf2 = Double.parseDouble(pTok.nextToken());
