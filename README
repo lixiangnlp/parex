@@ -1,7 +1,11 @@
-
 Parex Paraphrase Extractor
 --------------------------
 
+If you use Parex in your work, please cite the following:
+
+Michael Denkowski and Alon Lavie,
+"METEOR-NEXT and the METEOR Paraphrase Tables: Improved Evaluation Support For Five Target Languages",
+Proceedings of the ACL 2010 Joint Workshop on Statistical Machine Translation and Metrics MATR, 2010
 
 1. About:
 ---------
