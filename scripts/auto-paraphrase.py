@@ -6,14 +6,15 @@ SCRIPT_DIR = os.path.dirname(__file__)
 
 def main(argv):
     
-    if len(argv[1:]) != 4:
+    if len(argv[1:]) < 4:
         print >> sys.stderr, 'Warning: can use unbounded memory depending on data set.'
         print >> sys.stderr, 'JVM set to use 32G, recommend running with ulimit.'
         print >> sys.stderr
-        print >> sys.stderr, 'Usage: {0} corpus.src corpus.tgt pt.gz out'.format(argv[0])
+        print >> sys.stderr, 'Usage: {0} corpus.src corpus.tgt pt.gz out [memsizeGB]'.format(argv[0])
         sys.exit(1)
     
     out = argv[4]
+    memsize = argv[5] if len(argv[1:]) == 5 else '32'
 
     # Lowercase
     print >> sys.stderr, 'lc source'
@@ -24,20 +25,20 @@ def main(argv):
     lowercase(argv[3], out + '.parex.pt.gz', gz=True)
     
     # Paraphrase
-    parex = ['java', '-Xmx32G', '-jar', os.path.join(SCRIPT_DIR, os.path.pardir,
-      'parex-1.0.jar'), out + '.parex.src.lc', out + '.parex.tgt.lc',
-      out + '.parex.pt.gz', out + '.parex.src.lc', out + '.parex.tgt.lc',
-      out + '.parex']
+    parex = ['java', '-Xmx{0}G'.format(memsize), '-jar',
+      os.path.join(SCRIPT_DIR, os.path.pardir, 'parex-1.0.jar'),
+      out + '.parex.src.lc', out + '.parex.tgt.lc', out + '.parex.pt.gz',
+      out + '.parex.src.lc', out + '.parex.tgt.lc', out + '.parex']
     subprocess.call(parex)
     
     # Filter source
-    vacuum = ['java', '-Xmx32G', '-cp', os.path.join(SCRIPT_DIR, os.path.pardir,
+    vacuum = ['java', '-cp', os.path.join(SCRIPT_DIR, os.path.pardir,
       'parex-1.0.jar'), 'Vacuum', '0.01', out + '.parex.f.par.gz',
       out + '.parex.vac.src.gz']
     subprocess.call(vacuum)
     
     # Filter target
-    vacuum = ['java', '-Xmx32G', '-cp', os.path.join(SCRIPT_DIR, os.path.pardir,
+    vacuum = ['java', '-cp', os.path.join(SCRIPT_DIR, os.path.pardir,
       'parex-1.0.jar'), 'Vacuum', '0.01', out + '.parex.n.par.gz',
       out + '.parex.vac.tgt.gz']
     subprocess.call(vacuum)
