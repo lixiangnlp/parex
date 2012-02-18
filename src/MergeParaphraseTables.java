@@ -41,7 +41,7 @@ public class MergeParaphraseTables {
 		ArrayList<WeightedParaphrase> paraphrases = new ArrayList<WeightedParaphrase>();
 
 		for (int i = 1; i < args.length; i += 2) {
-			System.out.println(args[i]);
+			System.err.println(args[i]);
 			URL rawFile = (new File(args[i])).toURI().toURL();
 			int wc = Integer.parseInt(args[i + 1]);
 			BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -51,7 +51,7 @@ public class MergeParaphraseTables {
 			while ((line = in.readLine()) != null) {
 				j++;
 				if (j % 1000000 == 0)
-					System.out.println(j);
+					System.err.println(j);
 				String[] entry = line.split("\\|\\|\\|");
 				String ref = entry[0].trim();
 				String par = entry[1].trim();
@@ -63,7 +63,7 @@ public class MergeParaphraseTables {
 		}
 
 		// Sort
-		System.out.println("sorting");
+		System.err.println("sorting");
 		Collections.sort(paraphrases, new Comparator<WeightedParaphrase>() {
 			public int compare(WeightedParaphrase p1, WeightedParaphrase p2) {
 				// First unmap and compare refs
@@ -131,21 +131,21 @@ public class MergeParaphraseTables {
 	public static void main(String[] args) throws IOException {
 
 		if (args.length < 5) {
-			System.out.println("Paraphrase table merger");
-			System.out.println();
-			System.out
+			System.err.println("Paraphrase table merger");
+			System.err.println();
+			System.err
 					.println("Usage: java -XX:+UseCompressedOops -Xmx12G -cp parex-*.jar MergeParaphraseTables <outPrefix> <par1.gz> <wc1> <par2.gz> <wc2> [par3.gz wc3 ...]");
-			System.out.println();
-			System.out.println("parN.gz: paraphrase table");
-			System.out.println("wcN:     word count of corpus");
+			System.err.println();
+			System.err.println("parN.gz: paraphrase table");
+			System.err.println("wcN:     word count of corpus");
 			System.exit(0);
 		}
 
-		System.out.println("Step 1: grouping and weighting paraphrases");
+		System.err.println("Step 1: grouping and weighting paraphrases");
 		String groupFile = args[0] + ".mrg.grp.gz";
 		mergeAndWeightParaphrases(groupFile, args);
 
-		System.out.println("Step 2: merging paraphrases");
+		System.err.println("Step 2: merging paraphrases");
 		String mergedFile = args[0] + ".mrg.par.gz";
 		combineMergedParaphrases(groupFile, mergedFile);
 

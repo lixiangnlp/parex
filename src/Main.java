@@ -38,68 +38,68 @@ public class Main {
 			symbols = args[8];
 
 		// Step 1: Find common words
-		System.out.println("Step 1: building common word lists");
-		System.out.println("+ foreign");
+		System.err.println("Step 1: building common word lists");
+		System.err.println("+ foreign");
 		String fCommon = Util.findCommonWords(fCorpus, prefix + ".f", minRF);
-		System.out.println("+ native");
+		System.err.println("+ native");
 		String nCommon = Util.findCommonWords(nCorpus, prefix + ".n", minRF);
 
 		// Step 2: Extracting paraphrases
-		System.out.println("Step 2: extracting paraphrases");
+		System.err.println("Step 2: extracting paraphrases");
 		String fRaw = prefix + ".f.raw.gz";
 		String nRaw = prefix + ".n.raw.gz";
-		System.out.println("+ foreign");
+		System.err.println("+ foreign");
 		ParaphraseExtractor.extractParaphrases(fTgtCorpus, pt, fCommon,
 				nCommon, fRaw, ParaphraseExtractor.FOREIGN, minPhraseProb,
 				symbols);
-		System.out.println("+ native");
+		System.err.println("+ native");
 		ParaphraseExtractor.extractParaphrases(nTgtCorpus, pt, fCommon,
 				nCommon, nRaw, ParaphraseExtractor.NATIVE, minPhraseProb,
 				symbols);
 
 		// Step 3: Group paraphrases
-		System.out.println("Step 3: grouping paraphrases");
+		System.err.println("Step 3: grouping paraphrases");
 		String fGroup = prefix + ".f.grp.gz";
 		String nGroup = prefix + ".n.grp.gz";
-		System.out.println("+ foreign");
+		System.err.println("+ foreign");
 		Util.groupParaphrases(fRaw, fGroup);
-		System.out.println("+ native");
+		System.err.println("+ native");
 		Util.groupParaphrases(nRaw, nGroup);
 
 		// Step 4: Combine paraphrases
-		System.out.println("Step 4: combining paraphrases");
+		System.err.println("Step 4: combining paraphrases");
 		String fPar = prefix + ".f.par.gz";
 		String nPar = prefix + ".n.par.gz";
-		System.out.println("+ foreign");
+		System.err.println("+ foreign");
 		Util.combineParaphrases(fGroup, fPar);
-		System.out.println("+ native");
+		System.err.println("+ native");
 		Util.combineParaphrases(nGroup, nPar);
 	}
 
 	public static void printUsage() {
 		DecimalFormat df = new DecimalFormat("0.##########");
-		System.out.println("Paraphrase Extractor");
-		System.out.println();
-		System.out
+		System.err.println("Paraphrase Extractor");
+		System.err.println();
+		System.err
 				.println("Usage: java -XX:+UseCompressedOops -Xmx12G -jar parex-*.jar <fCorpus> <nCorpus> <pt.gz> <fTgtCorpus> <nTgtCorpus> <outPrefix> [minTP] [minRF] [symbols]");
-		System.out.println();
-		System.out.println("Args:");
-		System.out.println("<fCorpus> foreign corpus");
-		System.out.println("<nCorpus> native corpus");
-		System.out.println("<pt.gz> phrasetable built from corpora (gzipped)");
-		System.out.println("<fTgtCorpus> foreign target corpus to paraphrase");
-		System.out.println("<nTgtCorpus> native target corpus to paraphrase");
-		System.out.println("<outPrefix> prefix for output files");
-		System.out.println("[minTP] (default "
+		System.err.println();
+		System.err.println("Args:");
+		System.err.println("<fCorpus> foreign corpus");
+		System.err.println("<nCorpus> native corpus");
+		System.err.println("<pt.gz> phrasetable built from corpora (gzipped)");
+		System.err.println("<fTgtCorpus> foreign target corpus to paraphrase");
+		System.err.println("<nTgtCorpus> native target corpus to paraphrase");
+		System.err.println("<outPrefix> prefix for output files");
+		System.err.println("[minTP] (default "
 				+ df.format(ParaphraseExtractor.MIN_TRANS_PROB)
 				+ ") minimum paraphrase translation probability");
-		System.out.println("[minRF] (default " + df.format(Util.MIN_REL_FREQ)
+		System.err.println("[minRF] (default " + df.format(Util.MIN_REL_FREQ)
 				+ ") minimum word relative frequency for common word list");
-		System.out.println("[symbols] string of symbols to filter");
-		System.out.println();
-		System.out
+		System.err.println("[symbols] string of symbols to filter");
+		System.err.println();
+		System.err
 				.println("To merge paraphrase tables, use: java -cp parex-*.jar MergeParaphraseTables");
-		System.out
+		System.err
 				.println("To filter final tables, use: java -cp parex-*.jar Vacuum");
 	}
 }

@@ -61,7 +61,7 @@ public class ParaphraseExtractor {
 			symbols.add(symbolString.charAt(i));
 
 		// Load corpus
-		System.out.println("Loading corpus");
+		System.err.println("Loading corpus");
 		BufferedReader in = new BufferedReader(new FileReader(targetCorpusFile));
 		String line;
 		while ((line = in.readLine()) != null) {
@@ -72,9 +72,7 @@ public class ParaphraseExtractor {
 				Hashtable<Integer, Hashtable> table = corpus;
 				for (int j = i; j < words.length; j++) {
 					if (!table.containsKey(words[j]))
-						table
-								.put(words[j],
-										new Hashtable<Integer, Hashtable>());
+						table.put(words[j], new Hashtable<Integer, Hashtable>());
 					table = table.get(words[j]);
 				}
 			}
@@ -84,12 +82,12 @@ public class ParaphraseExtractor {
 		HashSet<Integer> nCommons = new HashSet<Integer>();
 
 		// Load common words
-		System.out.println("Loading common words (foreign)");
+		System.err.println("Loading common words (foreign)");
 		in = new BufferedReader(new FileReader(fCommonFile));
 		while ((line = in.readLine()) != null) {
 			fCommons.add(pt.mapWord(line));
 		}
-		System.out.println("Loading common words (native)");
+		System.err.println("Loading common words (native)");
 		in = new BufferedReader(new FileReader(nCommonFile));
 		while ((line = in.readLine()) != null) {
 			nCommons.add(pt.mapWord(line));
@@ -101,12 +99,12 @@ public class ParaphraseExtractor {
 
 		int lineCount = 0;
 		int phraseCount = 0;
-		System.out.println("Loading phrases");
+		System.err.println("Loading phrases");
 		while ((line = in.readLine()) != null) {
 
 			lineCount++;
 			if (lineCount % 10000000 == 0)
-				System.out.println(lineCount + " (" + phraseCount + ")");
+				System.err.println(lineCount + " (" + phraseCount + ")");
 
 			String[] part = line.split("\\|\\|\\|");
 
@@ -186,12 +184,12 @@ public class ParaphraseExtractor {
 				ptFile.openStream())));
 		lineCount = 0;
 		phraseCount = 0;
-		System.out.println("Finding paraphrases");
+		System.err.println("Finding paraphrases");
 		while ((line = in.readLine()) != null) {
 
 			lineCount++;
 			if (lineCount % 10000000 == 0)
-				System.out.println(lineCount + " (" + phraseCount + ")");
+				System.err.println(lineCount + " (" + phraseCount + ")");
 
 			String[] part = line.split("\\|\\|\\|");
 

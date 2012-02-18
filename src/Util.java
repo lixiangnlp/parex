@@ -86,7 +86,7 @@ public class Util {
 		while ((line = in.readLine()) != null) {
 			i++;
 			if (i % 1000000 == 0)
-				System.out.println(i);
+				System.err.println(i);
 			String[] entry = line.split("\\|\\|\\|");
 			String ref = entry[0].trim();
 			String par = entry[1].trim();

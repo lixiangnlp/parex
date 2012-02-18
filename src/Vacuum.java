@@ -13,9 +13,9 @@ public class Vacuum {
 
 		// Usage
 		if (args.length < 2) {
-			System.out.println("Vacuum paraphrase table");
-			System.out.println();
-			System.out
+			System.err.println("Vacuum paraphrase table");
+			System.err.println();
+			System.err
 					.println("Usage: java -cp parex-*.jar Vacuum <minProb> <phrasetable.gz> <new-phrasetable.gz>");
 			System.exit(0);
 		}
@@ -36,7 +36,7 @@ public class Vacuum {
 		while ((line = in.readLine()) != null) {
 			i++;
 			if (i % 1000000 == 0)
-				System.out.println(i);
+				System.err.println(i);
 			String[] entry = line.split("\\|\\|\\|");
 			double prob = Double.parseDouble(entry[2].trim());
 			if (prob >= minProb)
