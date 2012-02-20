@@ -29,19 +29,22 @@ def main(argv):
       os.path.join(SCRIPT_DIR, os.path.pardir, 'parex-1.0.jar'),
       out + '.parex.src.lc', out + '.parex.tgt.lc', out + '.parex.pt.gz',
       out + '.parex.src.lc', out + '.parex.tgt.lc', out + '.parex']
-    subprocess.call(parex)
+    if subprocess.call(parex) != 0:
+        die('Error running parex')
     
     # Filter source
     vacuum = ['java', '-cp', os.path.join(SCRIPT_DIR, os.path.pardir,
       'parex-1.0.jar'), 'Vacuum', '0.01', out + '.parex.f.par.gz',
       out + '.parex.vac.src.gz']
-    subprocess.call(vacuum)
+    if subprocess.call(vacuum) != 0:
+        die('Error cleaning paraphrases')
     
     # Filter target
     vacuum = ['java', '-cp', os.path.join(SCRIPT_DIR, os.path.pardir,
       'parex-1.0.jar'), 'Vacuum', '0.01', out + '.parex.n.par.gz',
       out + '.parex.vac.tgt.gz']
-    subprocess.call(vacuum)
+    if subprocess.call(vacuum) != 0:
+        die('Error cleaning paraphrases')
     
     # Convert format
     print >> sys.stderr, 'format source'
@@ -107,5 +110,9 @@ def is_gz(f):
 def cat(in_f, out_f):
     for line in in_f:
         out_f.write(line)
+
+def die(s):
+    print >> sys.stderr, s
+    sys.exit(1)
 
 if __name__ == '__main__' : main(sys.argv)
