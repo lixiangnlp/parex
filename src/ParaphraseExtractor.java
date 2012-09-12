@@ -173,10 +173,8 @@ public class ParaphraseExtractor {
 				// Otherwise store phrase entry
 				pt.addPhrasePair(piv1, p1, prob);
 				phraseCount++;
-
 			} catch (Exception ex) {
-				System.err.println("Problematic line: " + line);
-				ex.printStackTrace();
+				System.err.println("Skipping problematic line: " + line);
 			}
 		}
 		in.close();
@@ -193,72 +191,77 @@ public class ParaphraseExtractor {
 		System.err.println("Finding paraphrases");
 		while ((line = in.readLine()) != null) {
 
-			lineCount++;
-			if (lineCount % 10000000 == 0)
-				System.err.println(lineCount + " (" + phraseCount + ")");
+			try {
+				lineCount++;
+				if (lineCount % 10000000 == 0)
+					System.err.println(lineCount + " (" + phraseCount + ")");
 
-			String[] part = line.split("\\|\\|\\|");
+				String[] part = line.split("\\|\\|\\|");
 
-			// Foreign2
-			String f2 = part[0].trim();
-			// Native2
-			String n2 = part[1].trim();
-			// Probabilities
-			StringTokenizer pTok = new StringTokenizer(part[2]);
-			double pf2Gn2 = Double.parseDouble(pTok.nextToken());
-			pTok.nextToken();
-			double pn2Gf2 = Double.parseDouble(pTok.nextToken());
+				// Foreign2
+				String f2 = part[0].trim();
+				// Native2
+				String n2 = part[1].trim();
+				// Probabilities
+				StringTokenizer pTok = new StringTokenizer(part[2]);
+				double pf2Gn2 = Double.parseDouble(pTok.nextToken());
+				pTok.nextToken();
+				double pn2Gf2 = Double.parseDouble(pTok.nextToken());
 
-			// Paraphrase and pivot
-			String phrase2 = "";
-			String pivot2 = "";
-			double prob = 0;
-			HashSet<Integer> p2commons = null;
-			HashSet<Integer> piv2commons = null;
-			if (direction == NATIVE) {
-				phrase2 = n2;
-				pivot2 = f2;
-				prob = pn2Gf2;
-				p2commons = nCommons;
-				piv2commons = fCommons;
-			} else {
-				phrase2 = f2;
-				pivot2 = n2;
-				prob = pf2Gn2;
-				p2commons = fCommons;
-				piv2commons = nCommons;
-			}
+				// Paraphrase and pivot
+				String phrase2 = "";
+				String pivot2 = "";
+				double prob = 0;
+				HashSet<Integer> p2commons = null;
+				HashSet<Integer> piv2commons = null;
+				if (direction == NATIVE) {
+					phrase2 = n2;
+					pivot2 = f2;
+					prob = pn2Gf2;
+					p2commons = nCommons;
+					piv2commons = fCommons;
+				} else {
+					phrase2 = f2;
+					pivot2 = n2;
+					prob = pf2Gn2;
+					p2commons = fCommons;
+					piv2commons = nCommons;
+				}
 
-			// Skip if this will only make low scoring paraphrases
-			if (prob < minTransProb)
-				continue;
-
-			// Vacuum phrases with symbols
-			if (!isClean(phrase2, symbols) || !isClean(pivot2, symbols))
-				continue;
-
-			int[] p2 = pt.mapPhrase(phrase2);
-			int[] piv2 = pt.mapPhrase(pivot2);
-
-			// Vacuum phrases with only common words
-			if (!isUsable(p2, p2commons) || !isUsable(piv2, piv2commons)) {
-				continue;
-			}
-
-			// For phrases p1 with piv1 == piv2
-			for (PhraseTable.Phrase p1 : pt.getPhrases(piv2)) {
-				// p1 != p2
-				if (eqWords(p1.words, p2))
+				// Skip if this will only make low scoring paraphrases
+				if (prob < minTransProb)
 					continue;
-				// p = p(phrase1|piv1) * p(phrase2|piv2)
-				double parProb = p1.prob * prob;
-				if (parProb < minTransProb)
+
+				// Vacuum phrases with symbols
+				if (!isClean(phrase2, symbols) || !isClean(pivot2, symbols))
 					continue;
-				// reference ||| paraphrase ||| pivot ||| prob
-				nOut.println(p1.phrase + " ||| " + phrase2 + " ||| " + pivot2
-						+ " ||| " + parProb);
-				phraseCount++;
+
+				int[] p2 = pt.mapPhrase(phrase2);
+				int[] piv2 = pt.mapPhrase(pivot2);
+
+				// Vacuum phrases with only common words
+				if (!isUsable(p2, p2commons) || !isUsable(piv2, piv2commons)) {
+					continue;
+				}
+
+				// For phrases p1 with piv1 == piv2
+				for (PhraseTable.Phrase p1 : pt.getPhrases(piv2)) {
+					// p1 != p2
+					if (eqWords(p1.words, p2))
+						continue;
+					// p = p(phrase1|piv1) * p(phrase2|piv2)
+					double parProb = p1.prob * prob;
+					if (parProb < minTransProb)
+						continue;
+					// reference ||| paraphrase ||| pivot ||| prob
+					nOut.println(p1.phrase + " ||| " + phrase2 + " ||| "
+							+ pivot2 + " ||| " + parProb);
+					phraseCount++;
+				}
+			} catch (Exception ex) {
+				System.err.println("Skipping problematic line: " + line);
 			}
+
 		}
 		in.close();
 		nOut.close();
