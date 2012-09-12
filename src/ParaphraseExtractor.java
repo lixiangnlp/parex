@@ -102,76 +102,82 @@ public class ParaphraseExtractor {
 		System.err.println("Loading phrases");
 		while ((line = in.readLine()) != null) {
 
-			lineCount++;
-			if (lineCount % 10000000 == 0)
-				System.err.println(lineCount + " (" + phraseCount + ")");
+			try {
+				lineCount++;
+				if (lineCount % 10000000 == 0)
+					System.err.println(lineCount + " (" + phraseCount + ")");
 
-			String[] part = line.split("\\|\\|\\|");
+				String[] part = line.split("\\|\\|\\|");
 
-			// Foreign phrase 1
-			String f1 = part[0].trim();
-			// Native phrase 1
-			String n1 = part[1].trim();
-			// Probabilities
-			StringTokenizer pTok = new StringTokenizer(part[2]);
-			double pf1Gn1 = Double.parseDouble(pTok.nextToken());
-			pTok.nextToken();
-			double pn1Gf1 = Double.parseDouble(pTok.nextToken());
+				// Foreign phrase 1
+				String f1 = part[0].trim();
+				// Native phrase 1
+				String n1 = part[1].trim();
+				// Probabilities
+				StringTokenizer pTok = new StringTokenizer(part[2]);
+				double pf1Gn1 = Double.parseDouble(pTok.nextToken());
+				pTok.nextToken();
+				double pn1Gf1 = Double.parseDouble(pTok.nextToken());
 
-			// Original phrase and pivot
-			String phrase1 = "";
-			String pivot1 = "";
-			double prob = 0;
-			HashSet<Integer> p1commons = null;
-			HashSet<Integer> piv1commons = null;
-			if (direction == NATIVE) {
-				phrase1 = n1;
-				pivot1 = f1;
-				prob = pf1Gn1;
-				p1commons = nCommons;
-				piv1commons = fCommons;
-			} else {
-				phrase1 = f1;
-				pivot1 = n1;
-				prob = pn1Gf1;
-				p1commons = fCommons;
-				piv1commons = nCommons;
-			}
-
-			// Skip if this will only make low scoring paraphrases
-			if (prob < minTransProb)
-				continue;
-
-			// Vacuum phrases with symbols
-			if (!isClean(phrase1, symbols) || !isClean(pivot1, symbols)) {
-				continue;
-			}
-
-			int[] p1 = pt.mapPhrase(phrase1);
-			int[] piv1 = pt.mapPhrase(pivot1);
-
-			// Vacuum phrases with only common words
-			if (!isUsable(p1, p1commons) || !isUsable(piv1, piv1commons)) {
-				continue;
-			}
-
-			// Check if phrase1 (ref) in corpus
-			boolean inCorpus = true;
-			Hashtable<Integer, Hashtable> table = corpus;
-			for (int word : p1) {
-				if (!table.containsKey(word)) {
-					inCorpus = false;
-					break;
+				// Original phrase and pivot
+				String phrase1 = "";
+				String pivot1 = "";
+				double prob = 0;
+				HashSet<Integer> p1commons = null;
+				HashSet<Integer> piv1commons = null;
+				if (direction == NATIVE) {
+					phrase1 = n1;
+					pivot1 = f1;
+					prob = pf1Gn1;
+					p1commons = nCommons;
+					piv1commons = fCommons;
+				} else {
+					phrase1 = f1;
+					pivot1 = n1;
+					prob = pn1Gf1;
+					p1commons = fCommons;
+					piv1commons = nCommons;
 				}
-				table = table.get(word);
-			}
-			// If not, skip entry
-			if (!inCorpus)
-				continue;
 
-			// Otherwise store phrase entry
-			pt.addPhrasePair(piv1, p1, prob);
-			phraseCount++;
+				// Skip if this will only make low scoring paraphrases
+				if (prob < minTransProb)
+					continue;
+
+				// Vacuum phrases with symbols
+				if (!isClean(phrase1, symbols) || !isClean(pivot1, symbols)) {
+					continue;
+				}
+
+				int[] p1 = pt.mapPhrase(phrase1);
+				int[] piv1 = pt.mapPhrase(pivot1);
+
+				// Vacuum phrases with only common words
+				if (!isUsable(p1, p1commons) || !isUsable(piv1, piv1commons)) {
+					continue;
+				}
+
+				// Check if phrase1 (ref) in corpus
+				boolean inCorpus = true;
+				Hashtable<Integer, Hashtable> table = corpus;
+				for (int word : p1) {
+					if (!table.containsKey(word)) {
+						inCorpus = false;
+						break;
+					}
+					table = table.get(word);
+				}
+				// If not, skip entry
+				if (!inCorpus)
+					continue;
+
+				// Otherwise store phrase entry
+				pt.addPhrasePair(piv1, p1, prob);
+				phraseCount++;
+
+			} catch (Exception ex) {
+				System.err.println("Problematic line: " + line);
+				ex.printStackTrace();
+			}
 		}
 		in.close();
 
