@@ -153,4 +153,28 @@ public class Util {
 		in.close();
 		out.close();
 	}
+
+	public static void main(String[] args) throws IOException {
+
+		if (args.length == 0) {
+			System.err.println("Call utility functions directly");
+			System.err
+					.println("Usage: Usage: java -cp parex-*.jar Util [command]");
+			System.err.println("");
+			System.err.println("Commands:");
+			System.err.println("findCommonWords corpus prefix minRF");
+			System.err.println("groupParaphrases paraphraseFile groupedFile");
+			System.err
+					.println("combineParaphrases groupedFile finalParaphraseFile");
+			System.exit(2);
+		}
+
+		if (args[0].equals("findCommonWords")) {
+			findCommonWords(args[1], args[2], Double.parseDouble(args[3]));
+		} else if (args[0].equals("groupParaphrases")) {
+			groupParaphrases(args[1], args[2]);
+		} else if (args[0].equals("combineParaphrases")) {
+			combineParaphrases(args[1], args[2]);
+		}
+	}
 }
